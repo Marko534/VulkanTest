@@ -2,3 +2,5 @@ VulkanTest
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 .vscode/settings.json
+.simple_shader.vert.spv
+.simple_shader.frag.spv
