@@ -6,7 +6,10 @@ VulkanTest: *.cpp *.hpp
 
 .PHONY: test clean
 
-test: VulkanTest
+discrete: VulkanTest	 
+	__NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia ./VulkanTest
+
+integrated: VulkanTest
 	./VulkanTest
 
 clean:
