@@ -40,8 +40,10 @@ namespace lve
     createShaderModule(fragCode, &fragShaderModule);
 
     VkPipelineShaderStageCreateInfo shaderStages[2];
+
+    // VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO.
     // vert
-    shaderStages[0].sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+    shaderStages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
     shaderStages[0].module = vertShaderModule;
     shaderStages[0].pName = "main";
@@ -49,7 +51,7 @@ namespace lve
     shaderStages[0].pNext = nullptr;
     shaderStages[0].pSpecializationInfo = nullptr;
     // frag
-    shaderStages[1].sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+    shaderStages[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
     shaderStages[1].module = fragShaderModule;
     shaderStages[1].pName = "main";
@@ -79,6 +81,7 @@ namespace lve
     pipelineInfo.pInputAssemblyState = &configInfo.inputAssemblyInfo;
     pipelineInfo.pViewportState = &viewportInfo;
     pipelineInfo.pRasterizationState = &configInfo.rasterizationInfo;
+    pipelineInfo.pMultisampleState = &configInfo.multisampleInfo;
     pipelineInfo.pColorBlendState = &configInfo.colorBlendInfo;
     pipelineInfo.pDepthStencilState = &configInfo.depthStencilInfo;
     pipelineInfo.pDynamicState = nullptr;
@@ -117,6 +120,7 @@ namespace lve
     VkShaderModuleCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
     createInfo.codeSize = code.size();
+    // std::cout << "Shader size: " << createInfo.codeSize;
     createInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());
 
     if (vkCreateShaderModule(lveDevice.device(), &createInfo, nullptr, shaderModule) != VK_SUCCESS)
