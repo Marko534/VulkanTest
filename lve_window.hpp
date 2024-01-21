@@ -5,31 +5,30 @@
 
 #include <string>
 
-namespace lve{
+namespace lve
+{
 
-class LveWindow{
-    public:
+  class LveWindow
+  {
+  public:
+    LveWindow(int w, int h, std::string name);
+    ~LveWindow();
 
-        LveWindow(int w, int h, std::string name);
-        ~LveWindow();
+    LveWindow(const LveWindow &) = delete;
+    LveWindow &operator=(const LveWindow &) = delete;
 
-        LveWindow(const LveWindow &) = delete;
-        LveWindow &operator=(const LveWindow &) = delete;
+    bool shouldClose() { return glfwWindowShouldClose(window); }
 
-        bool shouldClose(){ return glfwWindowShouldClose(window); }
-        
-        void createWindowSurface(VkInstance instance, VkSurfaceKHR *surface);
+    void createWindowSurface(VkInstance instance, VkSurfaceKHR *surface);
 
-    private:
-
+  private:
     void initWindow();
 
     const int width;
     const int height;
 
     std::string windowName;
-    GLFWwindow *window; 
-
-};
+    GLFWwindow *window;
+  };
 
 }

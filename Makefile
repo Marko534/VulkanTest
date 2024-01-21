@@ -1,7 +1,8 @@
 CFLAGS = -std=c++17 -O2
 LDFLAGS = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi
 
-VulkanTest: *.cpp *.hpp
+VulkanTest: *.cpp *.hpp shaders/*.frag shaders/*.vert
+	./compile.sh
 	g++ $(CFLAGS) -o VulkanTest *.cpp $(LDFLAGS)
 
 .PHONY: test clean
@@ -14,3 +15,4 @@ integrated: VulkanTest
 
 clean:
 	rm -f VulkanTest ma
+	rm -f shaders/simple_shader.*.spv ma
