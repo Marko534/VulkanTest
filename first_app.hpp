@@ -11,12 +11,13 @@
 
 namespace lve
 {
+  
   class FirstApp
   {
 
   public:
-    static constexpr int WIDTH = 1280;
-    static constexpr int HEIGHT = 720;
+    static constexpr int WIDTH = 1024;
+    static constexpr int HEIGHT = 1024;
     
     FirstApp();
     ~FirstApp();
@@ -30,12 +31,12 @@ namespace lve
     void createPipelineLayout();
     void createPipeline();
     void createCommandBuffers();
-    void frawFrame();
+    void drawFrame();
 
     LveWindow lveWindow{WIDTH, HEIGHT, "Hello Vulkan!"};
     LveDevice lveDevice{lveWindow};
     LveSwapChain lveSwapChain{lveDevice, lveWindow.getExtent()};
-    std::unique_ptr<LvePipeline> lvePipelines;
+    std::unique_ptr<LvePipeline> lvePipeline;
     VkPipelineLayout pipelineLayout;
     std::vector<VkCommandBuffer> commandBuffers;
   };
