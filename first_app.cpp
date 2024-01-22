@@ -7,6 +7,7 @@ namespace lve
 {
   FirstApp::FirstApp()
   {
+    loadModels();
     createPipelineLayout();
     createPipeline();
     createCommandBuffers();
@@ -27,6 +28,20 @@ namespace lve
     }
 
     vkDeviceWaitIdle(lveDevice.device());
+  }
+
+  void FirstApp::loadModels()
+  {
+    std::vector<LveModel::Vertex> vertices{
+        {{0.0f, 1.0f}},      // Top
+        {{-0.951f, 0.309f}}, // Bottom left
+        {{0.951f, 0.309f}},  // Bottom right
+
+        {{0.0f, -1.0f}},     // Bottom
+        {{-0.587f, 0.809f}}, // Top left
+        {{0.587f, 0.809f}}   // Top right
+    };
+    lveModel = std::make_unique<LveModel>(lveDevice, vertices);
   }
 
   void FirstApp::createPipelineLayout()
@@ -98,10 +113,10 @@ namespace lve
       vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
       lvePipeline->bind(commandBuffers[i]);
-      vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
+      lveModel->bind(commandBuffers[i]);
+      lveModel->draw(commandBuffers[i]);
 
       vkCmdEndRenderPass(commandBuffers[i]);
-
       if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS)
       {
         throw std::runtime_error("Faled to record command buffer!");
@@ -112,14 +127,16 @@ namespace lve
   {
     uint32_t imageIndex;
     auto result = lveSwapChain.acquireNextImage(&imageIndex);
-    if(result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR){
+    if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+    {
       throw std::runtime_error("Faled to acquire swapChain image!");
     }
 
     result = lveSwapChain.submitCommandBuffers(&commandBuffers[imageIndex], &imageIndex);
-    if(result != VK_SUCCESS){
+    if (result != VK_SUCCESS)
+    {
       throw std::runtime_error("AAAAAAAAAAAAAAAAA!");
-    }    
+    }
   }
 
 }
