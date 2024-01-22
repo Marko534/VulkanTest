@@ -53,14 +53,23 @@ namespace lve
     return bindingDescription;
   }
 
+  // Here is the big buffer
   std::vector<VkVertexInputAttributeDescription> LveModel::Vertex::getAttributeDescriptions()
   {
-    std::vector<VkVertexInputAttributeDescription> attributeDescription(1);
-    attributeDescription[0].binding = 0;
+    std::vector<VkVertexInputAttributeDescription> attributeDescription(2);
     attributeDescription[0].location = 0;
+    attributeDescription[0].binding = 0;
     // size of each cell in the buffer
     attributeDescription[0].format = VK_FORMAT_R32G32_SFLOAT;
-    attributeDescription[0].offset = 0;
+    attributeDescription[0].offset = offsetof(Vertex, position);
+
+    // Color
+    attributeDescription[1].location = 1;
+    attributeDescription[1].binding = 0;
+    // size of each cell in the buffer
+    attributeDescription[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+    attributeDescription[1].offset = offsetof(Vertex, color);
+
     return attributeDescription;
   }
 

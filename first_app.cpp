@@ -33,13 +33,9 @@ namespace lve
   void FirstApp::loadModels()
   {
     std::vector<LveModel::Vertex> vertices{
-        {{0.0f, 1.0f}},      // Top
-        {{-0.951f, 0.309f}}, // Bottom left
-        {{0.951f, 0.309f}},  // Bottom right
-
-        {{0.0f, -1.0f}},     // Bottom
-        {{-0.587f, 0.809f}}, // Top left
-        {{0.587f, 0.809f}}   // Top right
+        {{0.0f, -0.866f}, {1.0f, 0.0f, 0.0f}}, // Top (Red)
+        {{-0.866f, 0.5f}, {0.0f, 1.0f, 0.0f}}, // Bottom left (Green)
+        {{0.866f, 0.5f}, {0.0f, 0.0f, 1.0f}}   // Bottom right (Blue)
     };
     lveModel = std::make_unique<LveModel>(lveDevice, vertices);
   }
