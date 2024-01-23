@@ -1,11 +1,25 @@
 #include "first_app.hpp"
 
+// libs
+#define GLM_FORCE_RADIANS
+// May want to delete to make it simmilar to openGl
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#include <glm/glm.hpp>
+
+// std
 #include <stdexcept>
 #include <array>
 #include <cassert>
 
 namespace lve
 {
+
+  struct SimplePushConstantData
+  {
+    glm::vec2 offset;
+    alignas(16) glm::vec3 color;
+  };
+
   FirstApp::FirstApp()
   {
     loadModels();
@@ -34,22 +48,26 @@ namespace lve
   void FirstApp::loadModels()
   {
     std::vector<LveModel::Vertex> vertices{
-        {{0.0f, -0.866f}, {1.0f, 0.0f, 0.0f}}, // Top (Red)
-        {{-0.866f, 0.5f}, {0.0f, 1.0f, 0.0f}}, // Bottom left (Green)
-        {{0.866f, 0.5f}, {0.0f, 0.0f, 1.0f}}   // Bottom right (Blue)
-    };
+        {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+        {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+        {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
     lveModel = std::make_unique<LveModel>(lveDevice, vertices);
   }
 
   void FirstApp::createPipelineLayout()
   {
+
+    VkPushConstantRange pushConstantRange{};
+    pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+    pushConstantRange.offset = 0;
+    pushConstantRange.size = sizeof(SimplePushConstantData);
+
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = 0;
     pipelineLayoutInfo.pSetLayouts = nullptr;
-    pipelineLayoutInfo.pushConstantRangeCount = 0;
-    pipelineLayoutInfo.pPushConstantRanges = nullptr;
-
+    pipelineLayoutInfo.pushConstantRangeCount = 1;
+    pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
     if (vkCreatePipelineLayout(lveDevice.device(), &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
     {
       throw std::runtime_error("Failed to create pipeline layout!");
@@ -154,11 +172,21 @@ namespace lve
 
     lvePipeline->bind(commandBuffers[imageIndex]);
     lveModel->bind(commandBuffers[imageIndex]);
-    lveModel->draw(commandBuffers[imageIndex]);
 
-    lvePipeline->bind(commandBuffers[imageIndex]);
-    lveModel->bind(commandBuffers[imageIndex]);
-    lveModel->draw(commandBuffers[imageIndex]);
+    for (int j = 0; j < 4; j++)
+    {
+      SimplePushConstantData push{};
+      push.offset = {0.0f, -0.4f + j * 0.25f};
+      push.color = {0.0f, 0.2f + j * 0.2f, 0.0f};
+
+      vkCmdPushConstants(commandBuffers[imageIndex],
+                         pipelineLayout,
+                         VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+                         0,
+                         sizeof(SimplePushConstantData),
+                         &push);
+      lveModel->draw(commandBuffers[imageIndex]);
+    }
 
     vkCmdEndRenderPass(commandBuffers[imageIndex]);
     if (vkEndCommandBuffer(commandBuffers[imageIndex]) != VK_SUCCESS)
