@@ -2,6 +2,7 @@
 
 #include <stdexcept>
 #include <array>
+#include <cassert>
 
 namespace lve
 {
@@ -9,7 +10,7 @@ namespace lve
   {
     loadModels();
     createPipelineLayout();
-    createPipeline();
+    recreateSwapChain();
     createCommandBuffers();
   }
 
@@ -57,8 +58,9 @@ namespace lve
 
   void FirstApp::createPipeline()
   {
-    auto pipelineConfig = LvePipeline::defaultPipelineConfigInfo(lveSwapChain.width(), lveSwapChain.height());
-    pipelineConfig.renderPass = lveSwapChain.getRenderPass();
+    PipelineConfigInfo pipelineConfig{};
+    LvePipeline::defaultPipelineConfigInfo(pipelineConfig);
+    pipelineConfig.renderPass = lveSwapChain->getRenderPass();
     pipelineConfig.pipelineLayout = pipelineLayout;
     lvePipeline = std::make_unique<LvePipeline>(
         lveDevice,
@@ -67,9 +69,23 @@ namespace lve
         pipelineConfig);
   }
 
+  void FirstApp::recreateSwapChain()
+  {
+    auto extent = lveWindow.getExtent();
+    while (extent.width == 0 || extent.height == 0)
+    {
+      extent = lveWindow.getExtent();
+      glfwWaitEvents();
+    }
+
+    vkDeviceWaitIdle(lveDevice.device());
+    lveSwapChain = std::make_unique<LveSwapChain>(lveDevice, extent);
+    createPipeline();
+  }
+
   void FirstApp::createCommandBuffers()
   {
-    commandBuffers.resize(lveSwapChain.imageCount());
+    commandBuffers.resize(lveSwapChain->imageCount());
 
     VkCommandBufferAllocateInfo allocateInfo{};
     allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -81,54 +97,83 @@ namespace lve
     {
       throw std::runtime_error("Failed to create commandBuffers!");
     }
+  }
 
-    for (int i = 0; i < commandBuffers.size(); i++)
+  void FirstApp::recordCommandBuffer(int imageIndex)
+  {
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+    if (vkBeginCommandBuffer(commandBuffers[imageIndex], &beginInfo) != VK_SUCCESS)
     {
-      VkCommandBufferBeginInfo beginInfo{};
-      beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+      throw std::runtime_error("Buffer failed to bigin recording!");
+    }
 
-      if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS)
-      {
-        throw std::runtime_error("Buffer failed to bigin recording!");
-      }
+    VkRenderPassBeginInfo renderPassInfo{};
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderPassInfo.renderPass = lveSwapChain->getRenderPass();
+    renderPassInfo.framebuffer = lveSwapChain->getFrameBuffer(imageIndex);
 
-      VkRenderPassBeginInfo renderPassInfo{};
-      renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-      renderPassInfo.renderPass = lveSwapChain.getRenderPass();
-      renderPassInfo.framebuffer = lveSwapChain.getFrameBuffer(i);
+    renderPassInfo.renderArea.offset = {0, 0};
+    renderPassInfo.renderArea.extent = lveSwapChain->getSwapChainExtent();
 
-      renderPassInfo.renderArea.offset = {0, 0};
-      renderPassInfo.renderArea.extent = lveSwapChain.getSwapChainExtent();
+    std::array<VkClearValue, 2> clearValues{};
+    clearValues[0].color = {0.1f, 0.1f, 0.1f, 0.1f};
+    clearValues[1].depthStencil = {1.0f, 0};
+    renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+    renderPassInfo.pClearValues = clearValues.data();
 
-      std::array<VkClearValue, 2> clearValues{};
-      clearValues[0].color = {0.1f, 0.1f, 0.1f, 0.1f};
-      clearValues[1].depthStencil = {1.0f, 0};
-      renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-      renderPassInfo.pClearValues = clearValues.data();
+    vkCmdBeginRenderPass(commandBuffers[imageIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-      vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+    VkViewport viewport{};
+    viewport.x = 0.0f;
+    viewport.y = 0.0f;
+    viewport.width = static_cast<float>(lveSwapChain->getSwapChainExtent().width);
+    viewport.height = static_cast<float>(lveSwapChain->getSwapChainExtent().height);
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+    VkRect2D scissor{{0, 0}, lveSwapChain->getSwapChainExtent()};
+    vkCmdSetViewport(commandBuffers[imageIndex], 0, 1, &viewport);
+    vkCmdSetScissor(commandBuffers[imageIndex], 0, 1, &scissor);
 
-      lvePipeline->bind(commandBuffers[i]);
-      lveModel->bind(commandBuffers[i]);
-      lveModel->draw(commandBuffers[i]);
+    lvePipeline->bind(commandBuffers[imageIndex]);
+    lveModel->bind(commandBuffers[imageIndex]);
+    lveModel->draw(commandBuffers[imageIndex]);
 
-      vkCmdEndRenderPass(commandBuffers[i]);
-      if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS)
-      {
-        throw std::runtime_error("Faled to record command buffer!");
-      }
+    lvePipeline->bind(commandBuffers[imageIndex]);
+    lveModel->bind(commandBuffers[imageIndex]);
+    lveModel->draw(commandBuffers[imageIndex]);
+
+    vkCmdEndRenderPass(commandBuffers[imageIndex]);
+    if (vkEndCommandBuffer(commandBuffers[imageIndex]) != VK_SUCCESS)
+    {
+      throw std::runtime_error("Faled to record command buffer!");
     }
   }
+
   void FirstApp::drawFrame()
   {
     uint32_t imageIndex;
-    auto result = lveSwapChain.acquireNextImage(&imageIndex);
+    auto result = lveSwapChain->acquireNextImage(&imageIndex);
+
+    if (result == VK_ERROR_OUT_OF_DATE_KHR)
+    {
+      recreateSwapChain();
+      return;
+    }
     if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
     {
       throw std::runtime_error("Faled to acquire swapChain image!");
     }
 
-    result = lveSwapChain.submitCommandBuffers(&commandBuffers[imageIndex], &imageIndex);
+    recordCommandBuffer(imageIndex);
+    result = lveSwapChain->submitCommandBuffers(&commandBuffers[imageIndex], &imageIndex);
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || lveWindow.wasWindowResized())
+    {
+      lveWindow.resetWindowResizedFlag();
+      recreateSwapChain();
+      return;
+    }
     if (result != VK_SUCCESS)
     {
       throw std::runtime_error("AAAAAAAAAAAAAAAAA!");

@@ -153,6 +153,7 @@ namespace lve
 
     vkGetPhysicalDeviceProperties(physicalDevice, &properties);
     std::cout << "physical device: " << properties.deviceName << std::endl;
+    std::cout << "driver:  " << properties.driverVersion << std::endl;
   }
 
   void LveDevice::createLogicalDevice()
