@@ -60,7 +60,7 @@ namespace lve
     attributeDescription[0].location = 0;
     attributeDescription[0].binding = 0;
     // size of each cell in the buffer
-    attributeDescription[0].format = VK_FORMAT_R32G32_SFLOAT;
+    attributeDescription[0].format = VK_FORMAT_R32G32B32_SFLOAT;
     attributeDescription[0].offset = offsetof(Vertex, position);
 
     // Color
