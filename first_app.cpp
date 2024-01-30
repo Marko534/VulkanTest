@@ -15,6 +15,7 @@
 #include <chrono>
 #include <array>
 #include <cassert>
+#include <iostream>
 
 // AAAAAAAA
 #include <glm/gtc/constants.hpp>
@@ -34,6 +35,7 @@ namespace lve
     LveCamera camera{};
 
     auto viewerObject = LveGameObject::createGameObject();
+    viewerObject.transform.translation = glm::vec3{0.f, 0.f, -5.f};
     KeyboardMovmentController cameraController{};
 
     auto currentTime = std::chrono::high_resolution_clock::now();
@@ -50,6 +52,12 @@ namespace lve
 
       cameraController.moveInPlaneXZ(lveWindow.getGLFWwindow(), frameTime, viewerObject);
       camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
+
+      // DEBUG POSITION
+      // std::cout << "Transform"
+      //           << "\t x: " << viewerObject.transform.translation.x << "\t y: " << viewerObject.transform.translation.y << "\t z: " << viewerObject.transform.translation.z << "\t";
+      // std::cout << "Rotation"
+      //           << "\t x: " << viewerObject.transform.rotation.x << "\t y: " << viewerObject.transform.rotation.y << "\t z: " << viewerObject.transform.rotation.z << std::endl;
 
       float aspect = lveRenderer.getAspectRatio();
       camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1, 10.f);

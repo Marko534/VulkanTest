@@ -28,6 +28,8 @@ namespace lve
 
   private:
     void loadGameObjects();
+    // void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
+    // KeyboardMovmentController cameraController{};
 
     LveWindow lveWindow{WIDTH, HEIGHT, "Hello Vulkan!"};
     LveDevice lveDevice{lveWindow};
