@@ -2,7 +2,7 @@
 
 #include "lve_window.hpp"
 #include "lve_device.hpp"
-#include "lve_game.hpp"
+#include "lve_game_object.hpp"
 #include "lve_renderer.hpp"
 // sdt
 #include <memory>
