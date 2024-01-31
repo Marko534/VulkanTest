@@ -1,7 +1,7 @@
-CFLAGS = -std=c++17 -O2
+CFLAGS = -std=c++17 -O2 
 LDFLAGS = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi
 
-VulkanTest: *.cpp *.hpp shaders/*.frag shaders/*.vert
+VulkanTest: *.cpp *.hpp shaders/*.frag shaders/*.vert libs/*.h
 	/usr/bin/glslc shaders/simple_shader.vert -o shaders/simple_shader.vert.spv
 	/usr/bin/glslc shaders/simple_shader.frag -o shaders/simple_shader.frag.spv
 	g++ $(CFLAGS) -o VulkanTest *.cpp $(LDFLAGS)

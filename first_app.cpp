@@ -5,6 +5,7 @@
 // #include "lve_camera.hpp"
 
 // libs
+
 #define GLM_FORCE_RADIANS
 // May want to delete to make it simmilar to openGl
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -133,7 +134,8 @@ namespace lve
   // YOU MAKE THE MODELS HERE
   void FirstApp::loadGameObjects()
   {
-    std::shared_ptr<LveModel> lveModel = createCubeModel(lveDevice, glm::vec3{0.f});
+    // std::shared_ptr<LveModel> lveModel = createCubeModel(lveDevice, glm::vec3{0.f});
+    std::shared_ptr<LveModel> lveModel = LveModel::createModelFromFile(lveDevice, "models/colored_cube.obj");
 
     auto cube = LveGameObject::createGameObject();
     cube.model = lveModel;
