@@ -35,7 +35,7 @@ namespace lve
     LveCamera camera{};
 
     auto viewerObject = LveGameObject::createGameObject();
-    viewerObject.transform.translation = glm::vec3{0.f, 0.f, -5.f};
+    viewerObject.transform.translation = glm::vec3{0.f, 0.f, 0.f};
     KeyboardMovmentController cameraController{};
 
     auto currentTime = std::chrono::high_resolution_clock::now();
@@ -48,19 +48,22 @@ namespace lve
       float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
       currentTime = newTime;
 
-      // frameTime = glm::min(frameTime);
+      // frameTime = glm::min(MAX_FRAME_TIME);
 
-      cameraController.moveInPlaneXZ(lveWindow.getGLFWwindow(), frameTime, viewerObject);
-      camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
+      cameraController.moveInOrbit(lveWindow.getGLFWwindow(), frameTime, viewerObject);
+      // cameraController.moveInPlaneXZ(lveWindow.getGLFWwindow(), frameTime, viewerObject);
+      // camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
+      camera.setViewDirection(viewerObject.transform.translation, -viewerObject.transform.translation);
 
       // DEBUG POSITION
-      // std::cout << "Transform"
-      //           << "\t x: " << viewerObject.transform.translation.x << "\t y: " << viewerObject.transform.translation.y << "\t z: " << viewerObject.transform.translation.z << "\t";
+      // std::cout
+      //     << "Transform"
+      //     << "\t x: " << viewerObject.transform.translation.x << "\t y: " << viewerObject.transform.translation.y << "\t z: " << viewerObject.transform.translation.z << "\t";
       // std::cout << "Rotation"
       //           << "\t x: " << viewerObject.transform.rotation.x << "\t y: " << viewerObject.transform.rotation.y << "\t z: " << viewerObject.transform.rotation.z << std::endl;
 
       float aspect = lveRenderer.getAspectRatio();
-      camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1, 10.f);
+      camera.setPerspectiveProjection(glm::radians(45.f), aspect, 0.1, 100.f);
 
       if (auto commandBuffer = lveRenderer.beginFrame())
       {
@@ -80,53 +83,53 @@ namespace lve
   {
     std::vector<LveModel::Vertex> vertices{
 
-        // left face (white)
-        {{-.5f, -.5f, -.5f}, {.9f, .9f, .9f}},
-        {{-.5f, .5f, .5f}, {.9f, .9f, .9f}},
-        {{-.5f, -.5f, .5f}, {.9f, .9f, .9f}},
-        {{-.5f, -.5f, -.5f}, {.9f, .9f, .9f}},
-        {{-.5f, .5f, -.5f}, {.9f, .9f, .9f}},
-        {{-.5f, .5f, .5f}, {.9f, .9f, .9f}},
+        // left face (red) 1.f, 0.f, 0.f
+        {{-.5f, -.5f, -.5f}, {1.f, 0.f, 0.f}},
+        {{-.5f, .5f, .5f}, {1.f, 0.f, 0.f}},
+        {{-.5f, -.5f, .5f}, {1.f, 0.f, 0.f}},
+        {{-.5f, -.5f, -.5f}, {1.f, 0.f, 0.f}},
+        {{-.5f, .5f, -.5f}, {1.f, 0.f, 0.f}},
+        {{-.5f, .5f, .5f}, {1.f, 0.f, 0.f}},
 
-        // right face (yellow)
-        {{.5f, -.5f, -.5f}, {.8f, .8f, .1f}},
-        {{.5f, .5f, .5f}, {.8f, .8f, .1f}},
-        {{.5f, -.5f, .5f}, {.8f, .8f, .1f}},
-        {{.5f, -.5f, -.5f}, {.8f, .8f, .1f}},
-        {{.5f, .5f, -.5f}, {.8f, .8f, .1f}},
-        {{.5f, .5f, .5f}, {.8f, .8f, .1f}},
+        // right face (orange) 0.8f, 0.31f, 0.f
+        {{.5f, -.5f, -.5f}, {0.8f, 0.31f, 0.f}},
+        {{.5f, .5f, .5f}, {0.8f, 0.31f, 0.f}},
+        {{.5f, -.5f, .5f}, {0.8f, 0.31f, 0.f}},
+        {{.5f, -.5f, -.5f}, {0.8f, 0.31f, 0.f}},
+        {{.5f, .5f, -.5f}, {0.8f, 0.31f, 0.f}},
+        {{.5f, .5f, .5f}, {0.8f, 0.31f, 0.f}},
 
-        // top face (orange, remember y axis points down)
-        {{-.5f, -.5f, -.5f}, {.9f, .6f, .1f}},
-        {{.5f, -.5f, .5f}, {.9f, .6f, .1f}},
-        {{-.5f, -.5f, .5f}, {.9f, .6f, .1f}},
-        {{-.5f, -.5f, -.5f}, {.9f, .6f, .1f}},
-        {{.5f, -.5f, -.5f}, {.9f, .6f, .1f}},
-        {{.5f, -.5f, .5f}, {.9f, .6f, .1f}},
+        // top face (yellow, remember y axis points down) 1.f, 1.f, 0.f
+        {{-.5f, -.5f, -.5f}, {1.f, 1.f, 0.f}},
+        {{.5f, -.5f, .5f}, {1.f, 1.f, 0.f}},
+        {{-.5f, -.5f, .5f}, {1.f, 1.f, 0.f}},
+        {{-.5f, -.5f, -.5f}, {1.f, 1.f, 0.f}},
+        {{.5f, -.5f, -.5f}, {1.f, 1.f, 0.f}},
+        {{.5f, -.5f, .5f}, {1.f, 1.f, 0.f}},
 
-        // bottom face (red)
-        {{-.5f, .5f, -.5f}, {.8f, .1f, .1f}},
-        {{.5f, .5f, .5f}, {.8f, .1f, .1f}},
-        {{-.5f, .5f, .5f}, {.8f, .1f, .1f}},
-        {{-.5f, .5f, -.5f}, {.8f, .1f, .1f}},
-        {{.5f, .5f, -.5f}, {.8f, .1f, .1f}},
-        {{.5f, .5f, .5f}, {.8f, .1f, .1f}},
+        // bottom face (white) 1.f, 1.f, 1.f
+        {{-.5f, .5f, -.5f}, {1.f, 1.f, 1.f}},
+        {{.5f, .5f, .5f}, {1.f, 1.f, 1.f}},
+        {{-.5f, .5f, .5f}, {1.f, 1.f, 1.f}},
+        {{-.5f, .5f, -.5f}, {1.f, 1.f, 1.f}},
+        {{.5f, .5f, -.5f}, {1.f, 1.f, 1.f}},
+        {{.5f, .5f, .5f}, {1.f, 1.f, 1.f}},
 
-        // nose face (blue)
-        {{-.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},
-        {{.5f, .5f, 0.5f}, {.1f, .1f, .8f}},
-        {{-.5f, .5f, 0.5f}, {.1f, .1f, .8f}},
-        {{-.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},
-        {{.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},
-        {{.5f, .5f, 0.5f}, {.1f, .1f, .8f}},
+        // nose face (blue) 0.f, 0.f, 1.f
+        {{-.5f, -.5f, 0.5f}, {0.f, 0.f, 1.f}},
+        {{.5f, .5f, 0.5f}, {0.f, 0.f, 1.f}},
+        {{-.5f, .5f, 0.5f}, {0.f, 0.f, 1.f}},
+        {{-.5f, -.5f, 0.5f}, {0.f, 0.f, 1.f}},
+        {{.5f, -.5f, 0.5f}, {0.f, 0.f, 1.f}},
+        {{.5f, .5f, 0.5f}, {0.f, 0.f, 1.f}},
 
-        // tail face (green)
-        {{-.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
-        {{.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
-        {{-.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
-        {{-.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
-        {{.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
-        {{.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
+        // tail face (green) 0.f, 0.5f, 0.f
+        {{-.5f, -.5f, -0.5f}, {0.f, 0.5f, 0.f}},
+        {{.5f, .5f, -0.5f}, {0.f, 0.5f, 0.f}},
+        {{-.5f, .5f, -0.5f}, {0.f, 0.5f, 0.f}},
+        {{-.5f, -.5f, -0.5f}, {0.f, 0.5f, 0.f}},
+        {{.5f, -.5f, -0.5f}, {0.f, 0.5f, 0.f}},
+        {{.5f, .5f, -0.5f}, {0.f, 0.5f, 0.f}},
 
     };
     for (auto &v : vertices)
@@ -139,13 +142,13 @@ namespace lve
   // YOU MAKE THE MODELS HERE
   void FirstApp::loadGameObjects()
   {
-    std::shared_ptr<LveModel> lveModel = createCubeModel(lveDevice, {0.f, 0.f, 0.f});
+    std::shared_ptr<LveModel> lveModel = createCubeModel(lveDevice, glm::vec3{0.f});
 
     auto cube = LveGameObject::createGameObject();
     cube.model = lveModel;
     // returnt depht to {0.f, 0.f, 0.5f};
-    cube.transform.translation = {0.f, 0.f, 2.5f};
-    cube.transform.scale = {0.5f, 0.5f, 0.5f};
+    // cube.transform.translation = {0.f, 0.f, 2.5f};
+    // cube.transform.scale = {0.5f, 0.5f, 0.5f};
     gameObjects.push_back(std::move(cube));
   }
 

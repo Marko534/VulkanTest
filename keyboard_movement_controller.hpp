@@ -20,14 +20,33 @@ namespace lve
       int lookRight = GLFW_KEY_RIGHT;
       int lookUp = GLFW_KEY_UP;
       int lookDown = GLFW_KEY_DOWN;
+      int ctrlFunction = GLFW_KEY_LEFT_CONTROL;
     };
+
+    // KeyboardMovmentController() : firstMouse{true} {}
 
     void moveInPlaneXZ(GLFWwindow *window,
                        float dt,
                        LveGameObject &gameObject);
 
+    void moveInOrbit(GLFWwindow *window,
+                     float dt,
+                     LveGameObject &gameObject);
+
     KeyMappings keys{};
     float moveSpeed{3.f};
     float lookSpeed{1.5f};
+
+    // mouse look
+    float mouseSensitivity{0.1f};
+    float lastX;
+    float lastY;
+    bool firstMouse{true};
+
+    // orbit
+    glm::vec3 center{0.f};
+    float orbitRadius{10.f};
+    float orbitSpeed{3.f};
+    float orbitSensitivity{0.75f};
   };
 } // namespace lve
