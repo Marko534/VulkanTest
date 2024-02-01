@@ -134,15 +134,20 @@ namespace lve
   // YOU MAKE THE MODELS HERE
   void FirstApp::loadGameObjects()
   {
-    // std::shared_ptr<LveModel> lveModel = createCubeModel(lveDevice, glm::vec3{0.f});
-    std::shared_ptr<LveModel> lveModel = LveModel::createModelFromFile(lveDevice, "models/colored_cube.obj");
+    std::shared_ptr<LveModel> lveModel1 = createCubeModel(lveDevice, glm::vec3{0.f});
+    std::shared_ptr<LveModel> lveModel2 = createCubeModel(lveDevice, glm::vec3{0.f});
+    // std::shared_ptr<LveModel> lveModel = LveModel::createModelFromFile(lveDevice, "models/colored_cube.obj");
 
-    auto cube = LveGameObject::createGameObject();
-    cube.model = lveModel;
+    auto cube1 = LveGameObject::createGameObject();
+    auto cube2 = LveGameObject::createGameObject();
+
+    cube1.model = lveModel1;
+    cube2.model = lveModel2;
     // returnt depht to {0.f, 0.f, 0.5f};
-    // cube.transform.translation = {0.f, 0.f, 2.5f};
+    cube2.transform.translation = {0.f, 0.f, 2.5f};
     // cube.transform.scale = {0.5f, 0.5f, 0.5f};
-    gameObjects.push_back(std::move(cube));
+    gameObjects.push_back(std::move(cube1));
+    gameObjects.push_back(std::move(cube2));
   }
 
 }
