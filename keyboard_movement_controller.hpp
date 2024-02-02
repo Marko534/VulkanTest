@@ -45,7 +45,7 @@ namespace lve
 
     // orbit
     glm::vec3 center{0.f};
-    float orbitRadius{10.f};
+    float orbitRadius{10};
     float orbitSpeed{3.f};
     float orbitSensitivity{0.75f};
   };

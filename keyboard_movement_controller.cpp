@@ -81,6 +81,8 @@ namespace lve
 
   void KeyboardMovmentController::moveInOrbit(GLFWwindow *window, float dt, LveGameObject &gameObject)
   {
+    orbitRadius = std::sqrt(gameObject.transform.translation.x * gameObject.transform.translation.x + gameObject.transform.translation.y * gameObject.transform.translation.y +
+                            gameObject.transform.translation.z * gameObject.transform.translation.z);
 
     double xposd, yposd;
     glfwGetCursorPos(window, &xposd, &yposd);
@@ -122,14 +124,6 @@ namespace lve
     float yaw = gameObject.transform.rotation.y;
     float pitch = gameObject.transform.rotation.x;
 
-    // Calculate new camera position in orbit around the center
-    float orbitX = center.x + orbitRadius * sin(yaw) * cos(pitch);
-    float orbitY = center.y + orbitRadius * sin(pitch);
-    float orbitZ = center.z + orbitRadius * cos(yaw) * cos(pitch);
-
-    // Update camera position
-    gameObject.transform.translation = glm::vec3(orbitX, orbitY, orbitZ);
-
     // Handle keyboard input for moving forward and backward
     if (glfwGetKey(window, keys.moveForward) == GLFW_PRESS)
     {
@@ -146,6 +140,13 @@ namespace lve
     {
       orbitRadius -= yoffset * dt * moveSpeed;
     }
+    // Calculate new camera position in orbit around the center
+    float orbitX = center.x + orbitRadius * sin(yaw) * cos(pitch);
+    float orbitY = center.y + orbitRadius * sin(pitch);
+    float orbitZ = center.z + orbitRadius * cos(yaw) * cos(pitch);
+
+    // Update camera position
+    gameObject.transform.translation = glm::vec3(orbitX, orbitY, orbitZ);
   }
 
 } // namespace lve

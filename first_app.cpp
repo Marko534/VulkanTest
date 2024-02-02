@@ -35,7 +35,9 @@ namespace lve
     LveCamera camera{};
 
     auto viewerObject = LveGameObject::createGameObject();
-    viewerObject.transform.translation = glm::vec3{0.f, 0.f, 0.f};
+    viewerObject.transform.translation = {0.f, 0.f, 10.f};
+    viewerObject.transform.rotation = {0.f, glm::pi<float>(), 0.f};
+
     KeyboardMovmentController cameraController{};
 
     auto currentTime = std::chrono::high_resolution_clock::now();
@@ -134,18 +136,42 @@ namespace lve
   void FirstApp::loadGameObjects()
   {
     std::shared_ptr<LveModel> lveModel1 = createCubeModel(lveDevice, glm::vec3{0.f});
-    std::shared_ptr<LveModel> lveModel2 = createCubeModel(lveDevice, glm::vec3{0.f});
-    // std::shared_ptr<LveModel> lveModel = LveModel::createModelFromFile(lveDevice, "models/colored_cube.obj");
+    std::shared_ptr<LveModel> lveModel2 = LveModel::createModelFromFile(lveDevice, "models/smooth_vase.obj", {1.f, 0.f, 0.69f});
+    std::shared_ptr<LveModel> lveModelArrowX = LveModel::createModelFromFile(lveDevice, "models/arrow.obj", {1.f, 0.f, 0.f});
+    std::shared_ptr<LveModel> lveModelArrowY = LveModel::createModelFromFile(lveDevice, "models/arrow.obj", {0.f, 1.f, 0.f});
+    std::shared_ptr<LveModel> lveModelArrowZ = LveModel::createModelFromFile(lveDevice, "models/arrow.obj", {0.f, 0.f, 1.f});
+
+    auto arrowX = LveGameObject::createGameObject();
+    auto arrowY = LveGameObject::createGameObject();
+    auto arrowZ = LveGameObject::createGameObject();
+
+    arrowX.model = lveModelArrowX;
+    arrowY.model = lveModelArrowY;
+    arrowZ.model = lveModelArrowZ;
+
+    // arrowZ.transform.rotation = {glm::pi<float>(), 0.f, 0.f};
+
+    arrowX.transform.translation = {0.75f, 0.f, 0.f};
+    arrowY.transform.translation = {0.f, 0.75f, 0.f};
+    arrowZ.transform.translation = {0.f, 0.f, 0.75f};
+
+    arrowX.transform.rotation = {0.f, 0.f, glm::three_over_two_pi<float>()};
+    arrowZ.transform.rotation = {glm::half_pi<float>(), 0.f, 0.f};
+
+    // cube.transform.scale = {0.5f, 0.5f, 0.5f};
+    gameObjects.push_back(std::move(arrowX));
+    gameObjects.push_back(std::move(arrowY));
+    gameObjects.push_back(std::move(arrowZ));
 
     auto cube1 = LveGameObject::createGameObject();
     auto cube2 = LveGameObject::createGameObject();
 
     cube1.model = lveModel1;
     cube2.model = lveModel2;
-    // returnt depht to {0.f, 0.f, 0.5f};
+
     cube2.transform.translation = {0.f, 0.f, 2.5f};
-    // cube.transform.scale = {0.5f, 0.5f, 0.5f};
-    gameObjects.push_back(std::move(cube1));
+
+    // gameObjects.push_back(std::move(cube1));
     gameObjects.push_back(std::move(cube2));
   }
 

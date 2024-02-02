@@ -81,10 +81,10 @@ namespace lve
     vkFreeMemory(lveDevice.device(), stagingBufferMemory, nullptr);
   }
 
-  std::unique_ptr<LveModel> LveModel::createModelFromFile(LveDevice &device, const std::string filepath)
+  std::unique_ptr<LveModel> LveModel::createModelFromFile(LveDevice &device, const std::string filepath, glm::vec3 fullColor)
   {
     Builder builder{};
-    builder.loadModel(filepath);
+    builder.loadModel(filepath, fullColor);
     std::cout << "Vertex count:" << builder.vertices.size() << std::endl;
     return std::make_unique<LveModel>(device, builder);
   }
@@ -182,7 +182,7 @@ namespace lve
     return attributeDescription;
   }
 
-  void LveModel::Builder::loadModel(const std::string &filepath)
+  void LveModel::Builder::loadModel(const std::string &filepath, glm::vec3 fullColor)
   {
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
@@ -213,32 +213,37 @@ namespace lve
           };
 
           auto colorIndex = 3 * index.vertex_index + 2;
-          if (colorIndex < attrib.colors.size())
+          // for special type of .obj files with colors
+          // if (colorIndex < attrib.colors.size())
+          // {
+          //   // std::cout << fullColor.x << "\t" << fullColor.y << "\t" << fullColor.z << std::endl;
+          //   vertex.color = {
+          //       attrib.colors[colorIndex - 2],
+          //       attrib.colors[colorIndex - 1],
+          //       attrib.colors[colorIndex - 0],
+          //   };
+          // }
+          // else
           {
-            vertex.color = {
-                attrib.colors[3 * index.vertex_index - 2],
-                attrib.colors[3 * index.vertex_index - 1],
-                attrib.colors[3 * index.vertex_index - 0],
-            };
-          }
-          else
-          {
-            vertex.color = {1.f, 1.f, 1.f};
+            // std::cout << fullColor.x << "\t" << fullColor.y << "\t" << fullColor.z << std::endl;
+            vertex.color = fullColor; // set default color
           }
         }
+
         if (index.normal_index >= 0)
         {
           vertex.normal = {
-              attrib.normals[3 * index.vertex_index + 0],
-              attrib.normals[3 * index.vertex_index + 1],
-              attrib.normals[3 * index.vertex_index + 2],
+              attrib.normals[3 * index.normal_index + 0],
+              attrib.normals[3 * index.normal_index + 1],
+              attrib.normals[3 * index.normal_index + 2],
           };
         }
+
         if (index.texcoord_index >= 0)
         {
           vertex.uv = {
-              attrib.texcoords[3 * index.vertex_index + 0],
-              attrib.texcoords[3 * index.vertex_index + 1],
+              attrib.texcoords[2 * index.texcoord_index + 0],
+              attrib.texcoords[2 * index.texcoord_index + 1],
           };
         }
 
