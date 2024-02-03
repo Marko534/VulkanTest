@@ -1,7 +1,7 @@
 #pragma once
 
-#include "lve_game_object.hpp"
-#include "lve_window.hpp"
+#include "head/lve_game_object.hpp"
+#include "head/lve_window.hpp"
 
 namespace lve
 {

@@ -1,11 +1,7 @@
-#include "lve_model.hpp"
-
-// // libs
-// #define TINTOBJLOADER_IMP
-// #include <tiny_obj_loader.h>
+#include "head/lve_model.hpp"
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "../external/tinyobjloader/tiny_obj_loader.h"
-#include "lve_utils.hpp"
+#include "head/lve_utils.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 

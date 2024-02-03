@@ -1,6 +1,6 @@
-#include "first_app.hpp"
-#include "keyboard_movement_controller.hpp"
-#include "simple_render_system.hpp"
+#include "head/first_app.hpp"
+#include "head/keyboard_movement_controller.hpp"
+#include "head/simple_render_system.hpp"
 // #include "lve_camera.hpp"
 
 // libs
