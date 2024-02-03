@@ -4,7 +4,7 @@
 // #define TINTOBJLOADER_IMP
 // #include <tiny_obj_loader.h>
 #define TINYOBJLOADER_IMPLEMENTATION
-#include "libs/tiny_obj_loader.h"
+#include "../external/tinyobjloader/tiny_obj_loader.h"
 #include "lve_utils.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
@@ -13,6 +13,10 @@
 #include <cstring>
 #include <iostream>
 #include <unordered_map>
+
+#ifndef ENGIN_DIR
+#define ENGIN_DIR "../"
+#endif
 
 namespace std
 {
@@ -184,12 +188,14 @@ namespace lve
 
   void LveModel::Builder::loadModel(const std::string &filepath, glm::vec3 fullColor)
   {
+    std::string modelPath = ENGIN_DIR + filepath;
+
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;
     std::string warn, err;
 
-    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filepath.c_str()))
+    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, modelPath.c_str()))
     {
       throw std::runtime_error(warn + err);
     }

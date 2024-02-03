@@ -6,17 +6,21 @@
 #include <stdexcept>
 #include <cassert>
 
+#ifndef ENGIN_DIR
+#define ENGIN_DIR "../"
+#endif
+
 namespace lve
 {
 
   std::vector<char> LvePipeline::readFile(const std::string &filepath)
   {
-
-    std::ifstream file{filepath, std::ios::ate | std::ios::binary};
+    std::string enginePath = ENGIN_DIR + filepath;
+    std::ifstream file{enginePath, std::ios::ate | std::ios::binary};
 
     if (!file.is_open())
     {
-      throw std::runtime_error("Failed to open file: " + filepath);
+      throw std::runtime_error("Failed to open file: " + enginePath);
     }
 
     size_t fileSize = static_cast<size_t>(file.tellg());
