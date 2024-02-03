@@ -1,6 +1,6 @@
 #pragma once
 
-#include "lve_model.hpp"
+#include "head/lve_model.hpp"
 // libs
 #include <glm/gtc/matrix_transform.hpp>
 // std
