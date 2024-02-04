@@ -4,37 +4,18 @@
 namespace lve
 {
 
-  void UseImGui::SetupVulkanWindow(ImGui_ImplVulkanH_Window *wd, LveDevice &device, int width, int height)
+  UseImGui::UseImGui(GLFWwindow *window, LveDevice &device, LveRenderer &renderer) : io(ImGui::GetIO())
   {
-    std::cout << device.surface() << "\n";
-    wd->Surface = device.surface();
-
-    // Select Surface Format
-    const VkFormat requestSurfaceImageFormat[] = {VK_FORMAT_B8G8R8A8_UNORM, VK_FORMAT_R8G8B8A8_UNORM, VK_FORMAT_B8G8R8_UNORM, VK_FORMAT_R8G8B8_UNORM};
-    const VkColorSpaceKHR requestSurfaceColorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR;
-    wd->SurfaceFormat = ImGui_ImplVulkanH_SelectSurfaceFormat(device.getPhysicalDevice(), wd->Surface, requestSurfaceImageFormat, (size_t)IM_ARRAYSIZE(requestSurfaceImageFormat), requestSurfaceColorSpace);
-
-    // Only works with v-sinc
-    VkPresentModeKHR present_modes[] = {VK_PRESENT_MODE_FIFO_KHR};
-
-    wd->PresentMode = ImGui_ImplVulkanH_SelectPresentMode(device.getPhysicalDevice(), wd->Surface, &present_modes[0], IM_ARRAYSIZE(present_modes));
-    // printf("[vulkan] Selected PresentMode = %d\n", wd->PresentMode);
-
-    // The 2 can be MAX_FRAMES_IN_FLIGHT
-    ImGui_ImplVulkanH_CreateOrResizeWindow(device.getInstance(), device.getPhysicalDevice(), device.device(), wd, device.findPhysicalQueueFamilies().graphicsFamily, nullptr, width, height, 2);
+    // io = ImGui::GetIO();
+    (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
+    Init(window, device, renderer);
   }
-
   void UseImGui::Init(GLFWwindow *window, LveDevice &device, LveRenderer &renderer)
   {
     VkResult err;
     // SetupVulkanWindow(wd, device, 1024, 1024);
-
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO &io = ImGui::GetIO();
-    (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
@@ -78,54 +59,79 @@ namespace lve
     ImGui_ImplVulkan_Init(&init_info, renderer.getSwapChainRenderPass());
   }
 
-  // void UseImGui::NewFrame()
-  // {
-  //   // feed inputs to dear imgui, start new frame
-  //   ImGui_ImplOpenGL3_NewFrame();
-  //   ImGui_ImplGlfw_NewFrame();
-  //   ImGui::NewFrame();
-  // }
+  void UseImGui::NewFrame()
+  {
+    // feed inputs to dear imgui, start new frame
+    ImGui_ImplVulkan_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+  }
 
-  // // from https://github.com/conan-io/examples/blob/master/libraries/dear-imgui/basic/main.cpp
-  // void render_conan_logo()
-  // {
-  //   ImDrawList *draw_list = ImGui::GetWindowDrawList();
-  //   float sz = 300.0f;
-  //   static ImVec4 col1 = ImVec4(68.0 / 255.0, 83.0 / 255.0, 89.0 / 255.0, 1.0f);
-  //   static ImVec4 col2 = ImVec4(40.0 / 255.0, 60.0 / 255.0, 80.0 / 255.0, 1.0f);
-  //   static ImVec4 col3 = ImVec4(50.0 / 255.0, 65.0 / 255.0, 82.0 / 255.0, 1.0f);
-  //   static ImVec4 col4 = ImVec4(20.0 / 255.0, 40.0 / 255.0, 60.0 / 255.0, 1.0f);
-  //   const ImVec2 p = ImGui::GetCursorScreenPos();
-  //   float x = p.x + 4.0f, y = p.y + 4.0f;
-  //   draw_list->AddQuadFilled(ImVec2(x, y + 0.25 * sz), ImVec2(x + 0.5 * sz, y + 0.5 * sz), ImVec2(x + sz, y + 0.25 * sz), ImVec2(x + 0.5 * sz, y), ImColor(col1));
-  //   draw_list->AddQuadFilled(ImVec2(x, y + 0.25 * sz), ImVec2(x + 0.5 * sz, y + 0.5 * sz), ImVec2(x + 0.5 * sz, y + 1.0 * sz), ImVec2(x, y + 0.75 * sz), ImColor(col2));
-  //   draw_list->AddQuadFilled(ImVec2(x + 0.5 * sz, y + 0.5 * sz), ImVec2(x + sz, y + 0.25 * sz), ImVec2(x + sz, y + 0.75 * sz), ImVec2(x + 0.5 * sz, y + 1.0 * sz), ImColor(col3));
-  //   draw_list->AddLine(ImVec2(x + 0.75 * sz, y + 0.375 * sz), ImVec2(x + 0.75 * sz, y + 0.875 * sz), ImColor(col4));
-  //   draw_list->AddBezierCurve(ImVec2(x + 0.72 * sz, y + 0.24 * sz), ImVec2(x + 0.68 * sz, y + 0.15 * sz), ImVec2(x + 0.48 * sz, y + 0.13 * sz), ImVec2(x + 0.39 * sz, y + 0.17 * sz), ImColor(col4), 10, 18);
-  //   draw_list->AddBezierCurve(ImVec2(x + 0.39 * sz, y + 0.17 * sz), ImVec2(x + 0.2 * sz, y + 0.25 * sz), ImVec2(x + 0.3 * sz, y + 0.35 * sz), ImVec2(x + 0.49 * sz, y + 0.38 * sz), ImColor(col4), 10, 18);
-  // }
+  void UseImGui::Update()
+  {
+    if (show_demo_window)
+      ImGui::ShowDemoWindow(&show_demo_window);
 
-  // void UseImGui::Update()
-  // {
-  //   ImGui::Begin("Conan Logo"); // Create a window called "Conan Logo" and append into it.
-  //   render_conan_logo();        // draw conan logo if user didn't override update
-  //   ImGui::End();
-  // }
+    // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
+    {
+      static float f = 0.0f;
+      static int counter = 0;
 
-  // void UseImGui::Render()
-  // {
-  //   // Render dear imgui into screen
-  //   ImGui::Render();
-  //   ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-  // }
+      ImGui::Begin("Hello, world!"); // Create a window called "Hello, world!" and append into it.
 
-  // void UseImGui::Shutdown()
-  // {
-  //   // Cleanup
-  //   ImGui_ImplOpenGL3_Shutdown();
-  //   ImGui_ImplGlfw_Shutdown();
-  //   ImGui::DestroyContext();
-  // }
+      ImGui::Text("This is some useful text.");          // Display some text (you can use a format strings too)
+      ImGui::Checkbox("Demo Window", &show_demo_window); // Edit bools storing our window open/close state
+      ImGui::Checkbox("Another Window", &show_another_window);
+
+      ImGui::SliderFloat("float", &f, 0.0f, 1.0f);             // Edit 1 float using a slider from 0.0f to 1.0f
+      ImGui::ColorEdit3("clear color", (float *)&clear_color); // Edit 3 floats representing a color
+
+      if (ImGui::Button("Button")) // Buttons return true when clicked (most widgets return true when edited/activated)
+        counter++;
+      ImGui::SameLine();
+      ImGui::Text("counter = %d", counter);
+
+      ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+      ImGui::End();
+    }
+
+    // 3. Show another simple window.
+    if (show_another_window)
+    {
+      ImGui::Begin("Another Window", &show_another_window); // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+      ImGui::Text("Hello from another window!");
+      if (ImGui::Button("Close Me"))
+        show_another_window = false;
+      ImGui::End();
+    }
+  }
+
+  void UseImGui::Render()
+  {
+    // Render dear imgui into screen
+    ImGui::Render();
+    ImDrawData *draw_data = ImGui::GetDrawData();
+    // const bool is_minimized = (draw_data->DisplaySize.x <= 0.0f || draw_data->DisplaySize.y <= 0.0f);
+    // if (!is_minimized)
+    // {
+    //   wd->ClearValue.color.float32[0] = clear_color.x * clear_color.w;
+    //   wd->ClearValue.color.float32[1] = clear_color.y * clear_color.w;
+    //   wd->ClearValue.color.float32[2] = clear_color.z * clear_color.w;
+    //   wd->ClearValue.color.float32[3] = clear_color.w;
+    //   FrameRender(wd, draw_data);
+    //   FramePresent(wd);
+    // }
+  }
+
+  void UseImGui::Shutdown(LveDevice &device)
+  {
+    // Cleanup
+    vkDeviceWaitIdle(device.device());
+    // check_vk_result(err);
+    ImGui_ImplVulkan_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+  }
 
   void UseImGui::check_vk_result(VkResult err)
   {

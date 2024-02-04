@@ -43,8 +43,9 @@ namespace lve
 
     KeyboardMovmentController cameraController{};
 
-    UseImGui myimgui;
-    myimgui.Init(lveWindow.getGLFWwindow(), lveDevice, lveRenderer);
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    UseImGui myimgui{lveWindow.getGLFWwindow(), lveDevice, lveRenderer};
 
     auto currentTime = std::chrono::high_resolution_clock::now();
 
@@ -55,7 +56,6 @@ namespace lve
       auto newTime = std::chrono::high_resolution_clock::now();
       float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
       currentTime = newTime;
-
       // frameTime = glm::min(MAX_FRAME_TIME);
 
       cameraController.moveInOrbit(lveWindow.getGLFWwindow(), frameTime, viewerObject);
@@ -77,6 +77,9 @@ namespace lve
       {
 
         lveRenderer.beginSwapChainRenderPass(commandBuffer);
+        myimgui.NewFrame();
+        myimgui.Update();
+        myimgui.Render();
         simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, camera);
         lveRenderer.endSwapChainRenderPass(commandBuffer);
         lveRenderer.endFrame();
