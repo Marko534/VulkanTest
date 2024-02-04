@@ -70,8 +70,8 @@ endif()
 find_package(Freetype REQUIRED)
 include_directories(${FREETYPE_INCLUDE_DIRS})
 
-file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
-file(GLOB_RECURSE LIBS ${GUI_PATH}/**)
+file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*)
+file(GLOB_RECURSE LIBS ${GUI_PATH}/*)
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${LIBS})
 

@@ -3,7 +3,7 @@
 namespace lve
 {
 
-  void SetupVulkanWindow(ImGui_ImplVulkanH_Window *wd, LveDevice &device, int width, int height)
+  void UseImGui::SetupVulkanWindow(ImGui_ImplVulkanH_Window *wd, LveDevice &device, int width, int height)
   {
     wd->Surface = device.surface();
 
@@ -109,7 +109,7 @@ namespace lve
   //   ImGui::DestroyContext();
   // }
 
-  static void check_vk_result(VkResult err)
+  void UseImGui::check_vk_result(VkResult err)
   {
     if (err == 0)
       return;

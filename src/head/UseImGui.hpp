@@ -17,9 +17,9 @@ namespace lve
 
   public:
     void Init(GLFWwindow *window, LveDevice &device);
-    void NewFrame();
-    virtual void Update();
-    void Render();
-    void Shutdown();
+    void NewFrame(){};
+    virtual void Update(){};
+    void Render(){};
+    void Shutdown(){};
   };
 }
