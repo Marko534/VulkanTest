@@ -11,6 +11,7 @@ namespace lve
 
   struct TransformComponent
   {
+    std::string name;
     glm::vec3 translation{};
     glm::vec3 scale{1.f, 1.f, 1.f};
     glm::vec3 rotation;

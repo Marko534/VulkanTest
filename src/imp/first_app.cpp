@@ -113,13 +113,35 @@ namespace lve
         lveRenderer.beginSwapChainRenderPass(commandBuffer);
         myimgui.NewFrame();
         {
+          // ADD
+          ImGui::Begin("ADD ENTITY");        // Create a window called "Hello, world!" and append into it.
+          spawnVase = ImGui::Button("VASE"); // Edit bools storing our window open/close state
+          spawnCube = ImGui::Button("CUBE"); // Edit bools storing our window open/close state
+          ImGui::End();
+
+          ImGui::Begin("Entity"); // Create a window called "Hello, world!" and append into it.
+
+          for (auto &entity : gameObjects)
+          {
+            ImGui::NewLine();
+            ImGui::InputText("##NameBuffer", entity.transform.name.data(), entity.transform.name.size());
+
+            // static char str0[128] = "Hello, world!";
+            // ImGui::InputText("input text", str0, IM_ARRAYSIZE(str0));
+            glm::vec3 position = entity.transform.translation;
+            ImGui::DragFloat3("POSITION", &position.x, 0.001f, -5.f, 5.f);
+            entity.transform.translation = position;
+            // ImGui::DragFloat3("SCALE", &scaleVase.x, 0.001f, -5.f, 5.f);
+            // ImGui::DragFloat3("ROTATION (in rad)", &rotationVase.x, 0.001f, -5.f, 5.f);
+          }
+          ImGui::End();
+
           // VASE
           ImGui::Begin("VASE");                            // Create a window called "Hello, world!" and append into it.
           ImGui::ColorEdit3("COLOR", (float *)&colorVase); // Edit 3 floats representing a color
           ImGui::DragFloat3("POSITION", &positionVase.x, 0.001f, -5.f, 5.f);
           ImGui::DragFloat3("SCALE", &scaleVase.x, 0.001f, -5.f, 5.f);
           ImGui::DragFloat3("ROTATION (in rad)", &rotationVase.x, 0.001f, -5.f, 5.f);
-          spawnVase = ImGui::Button("VASE"); // Edit bools storing our window open/close state
           ImGui::End();
 
           // CUBE
@@ -128,7 +150,6 @@ namespace lve
           ImGui::DragFloat3("POSITION", &positionCube.x, 0.001f, -5.f, 5.f);
           ImGui::DragFloat3("SCALE", &scaleCube.x, 0.001f, -5.f, 5.f);
           ImGui::DragFloat3("ROTATION (in rad)", &rotationCube.x, 0.001f, -5.f, 5.f);
-          spawnCube = ImGui::Button("CUBE"); // Edit bools storing our window open/close state
           ImGui::End();
         }
         myimgui.Update();
