@@ -4,12 +4,22 @@
 #include "../external/imgui/backends/imgui_impl_glfw.h"
 #include "../external/imgui/backends/imgui_impl_vulkan.h"
 
-class UseImGui
+#include "head/lve_device.hpp"
+namespace lve
 {
-public:
-  void Init(GLFWwindow *window, const char *glsl_version);
-  void NewFrame();
-  virtual void Update();
-  void Render();
-  void Shutdown();
-};
+  class UseImGui
+  {
+  private:
+    ImGui_ImplVulkanH_Window *wd;
+
+    static void SetupVulkanWindow(ImGui_ImplVulkanH_Window *wd, LveDevice &device, int width, int height);
+    static void check_vk_result(VkResult err);
+
+  public:
+    void Init(GLFWwindow *window, LveDevice &device);
+    void NewFrame();
+    virtual void Update();
+    void Render();
+    void Shutdown();
+  };
+}
