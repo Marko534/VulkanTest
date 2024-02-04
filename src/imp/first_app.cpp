@@ -44,7 +44,7 @@ namespace lve
     KeyboardMovmentController cameraController{};
 
     UseImGui myimgui;
-    myimgui.Init(lveWindow.getGLFWwindow(), lveDevice);
+    myimgui.Init(lveWindow.getGLFWwindow(), lveDevice, lveRenderer);
 
     auto currentTime = std::chrono::high_resolution_clock::now();
 

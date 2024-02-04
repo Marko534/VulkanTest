@@ -1,10 +1,12 @@
 #include "head/UseImGui.hpp"
+#include <iostream>
 
 namespace lve
 {
 
   void UseImGui::SetupVulkanWindow(ImGui_ImplVulkanH_Window *wd, LveDevice &device, int width, int height)
   {
+    std::cout << device.surface() << "\n";
     wd->Surface = device.surface();
 
     // Select Surface Format
@@ -22,9 +24,10 @@ namespace lve
     ImGui_ImplVulkanH_CreateOrResizeWindow(device.getInstance(), device.getPhysicalDevice(), device.device(), wd, device.findPhysicalQueueFamilies().graphicsFamily, nullptr, width, height, 2);
   }
 
-  void UseImGui::Init(GLFWwindow *window, LveDevice &device)
+  void UseImGui::Init(GLFWwindow *window, LveDevice &device, LveRenderer &renderer)
   {
-    SetupVulkanWindow(wd, device, 1024, 1024);
+    VkResult err;
+    // SetupVulkanWindow(wd, device, 1024, 1024);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -49,15 +52,30 @@ namespace lve
     init_info.Queue = device.graphicsQueue();
     // init_info.Queue = device.presentQueue();
     init_info.PipelineCache = VK_NULL_HANDLE;
-    init_info.DescriptorPool = VK_NULL_HANDLE;
+
+    VkDescriptorPoolSize pool_sizes[] =
+        {
+            {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1},
+        };
+    VkDescriptorPoolCreateInfo pool_info = {};
+    pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+    pool_info.maxSets = 1;
+    pool_info.poolSizeCount = (uint32_t)IM_ARRAYSIZE(pool_sizes);
+    pool_info.pPoolSizes = pool_sizes;
+    err = vkCreateDescriptorPool(device.device(), &pool_info, nullptr, &g_DescriptorPool);
+    check_vk_result(err);
+
+    init_info.DescriptorPool = g_DescriptorPool;
     init_info.Subpass = 0;
     // this should be 2 if not that MAX_FRAMES_IN_FLIGHT
     init_info.MinImageCount = 2;
-    init_info.ImageCount = wd->ImageCount;
+    init_info.ImageCount = renderer.getSwapChainImageCount();
     init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+    std::cout << "AAAAAAAAAAAAAAA\n";
     init_info.Allocator = nullptr;
     init_info.CheckVkResultFn = check_vk_result;
-    ImGui_ImplVulkan_Init(&init_info, wd->RenderPass);
+    ImGui_ImplVulkan_Init(&init_info, renderer.getSwapChainRenderPass());
   }
 
   // void UseImGui::NewFrame()
