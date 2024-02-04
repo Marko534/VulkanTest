@@ -17,7 +17,7 @@ endif()
 
 project(${NAME} VERSION 0.23.0)
 
-# 1. Set VULKAN_SDK_PATH in .env.cmake to target specific vulkan version
+# 1. Set VULKAN_SDK_PATH in .env.cmake to target specific Vulkan version
 if (DEFINED VULKAN_SDK_PATH)
   set(Vulkan_INCLUDE_DIRS "${VULKAN_SDK_PATH}/Include") # 1.1 Make sure this include path is correct
   set(Vulkan_LIBRARIES "${VULKAN_SDK_PATH}/Lib") # 1.2 Make sure lib path is correct
@@ -29,19 +29,18 @@ endif()
 if (NOT Vulkan_FOUND)
 	message(FATAL_ERROR "Could not find Vulkan library!")
 else()
-	message(STATUS "Using vulkan lib at: ${Vulkan_LIBRARIES}")
+	message(STATUS "Using Vulkan lib at: ${Vulkan_LIBRARIES}")
 endif()
 
-
-# 2. Set GLFW_PATH in .env.cmake to target specific glfw
+# 2. Set GLFW_PATH in .env.cmake to target specific GLFW
 if (DEFINED GLFW_PATH)
   message(STATUS "Using GLFW path specified in .env")
   set(GLFW_INCLUDE_DIRS "${GLFW_PATH}/include")
   if (MSVC)
-    set(GLFW_LIB "${GLFW_PATH}/lib-vc2019") # 2.1 Update lib-vc2019 to use same version as your visual studio
+    set(GLFW_LIB "${GLFW_PATH}/lib-vc2019") # 2.1 Update lib-vc2019 to use the same version as your Visual Studio
   elseif (CMAKE_GENERATOR STREQUAL "MinGW Makefiles")
     message(STATUS "USING MINGW")
-    set(GLFW_LIB "${GLFW_PATH}/lib-mingw-w64") # 2.1 make sure matches glfw mingw subdirectory
+    set(GLFW_LIB "${GLFW_PATH}/lib-mingw-w64") # 2.1 make sure it matches glfw Mingw subdirectory
   endif()
 else()
   find_package(glfw3 3.3 REQUIRED)
@@ -49,22 +48,32 @@ else()
   message(STATUS "Found GLFW")
 endif()
 if (NOT GLFW_LIB)
-	message(FATAL_ERROR "Could not find glfw library!")
+	message(FATAL_ERROR "Could not find GLFW library!")
 else()
-	message(STATUS "Using glfw lib at: ${GLFW_LIB}")
+	message(STATUS "Using GLFW lib at: ${GLFW_LIB}")
 endif()
 
-include_directories(external)
-
-# If TINYOBJ_PATH not specified in .env.cmake, try fetching from git repo
+# If TINYOBJ_PATH not specified in .env.cmake, try fetching from the git repo
 if (NOT TINYOBJ_PATH)
   message(STATUS "TINYOBJ_PATH not specified in .env.cmake, using external/tinyobjloader")
   set(TINYOBJ_PATH external/tinyobjloader)
 endif()
 
-file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
+# GUI
+# Dear ImGui
+if (NOT GUI_PATH)
+  message(STATUS "GUI_PATH not specified in .env.cmake, using external/tinyobjloader")
+  set(GUI_PATH external/imgui)
+endif()
 
-add_executable(${PROJECT_NAME} ${SOURCES})
+# Add FreeType library
+find_package(Freetype REQUIRED)
+include_directories(${FREETYPE_INCLUDE_DIRS})
+
+file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
+file(GLOB_RECURSE LIBS ${GUI_PATH}/**)
+
+add_executable(${PROJECT_NAME} ${SOURCES} ${LIBS})
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 
@@ -88,6 +97,7 @@ if (WIN32)
     ${TINYOBJ_PATH}
     ${GLFW_INCLUDE_DIRS}
     ${GLM_PATH}
+    ${GLM_PATH}/backends
     )
 
   target_link_directories(${PROJECT_NAME} PUBLIC
@@ -95,16 +105,19 @@ if (WIN32)
     ${GLFW_LIB}
   )
 
-  target_link_libraries(${PROJECT_NAME} glfw3 vulkan-1)
+  target_link_libraries(${PROJECT_NAME} glfw3 vulkan-1 ${FREETYPE_LIBRARIES})
 elseif (UNIX)
     message(STATUS "CREATING BUILD FOR UNIX")
+    include_directories(/usr/include/freetype2)
+
     target_include_directories(${PROJECT_NAME} PUBLIC
       ${PROJECT_SOURCE_DIR}/src
       ${TINYOBJ_PATH}
+      ${GUI_PATH}
+      ${GLM_PATH}/backends
     )
-    target_link_libraries(${PROJECT_NAME} glfw ${Vulkan_LIBRARIES})
+    target_link_libraries(${PROJECT_NAME} glfw ${Vulkan_LIBRARIES} ${FREETYPE_LIBRARIES})
 endif()
-
 
 ############## Build SHADERS #######################
 
