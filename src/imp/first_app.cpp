@@ -56,6 +56,11 @@ namespace lve
     bool show_demo_window = {true};
     bool show_another_window{false};
     ImVec4 clear_color{ImVec4(0.45f, 0.55f, 0.60f, 1.00f)};
+    static bool spawnVase = false;
+    glm::vec3 position{0.f};
+    glm::vec3 scale{0.f};
+    glm::vec3 rotation{0.f};
+
     while (!lveWindow.shouldClose())
     {
       glfwPollEvents();
@@ -80,30 +85,29 @@ namespace lve
       float aspect = lveRenderer.getAspectRatio();
       camera.setPerspectiveProjection(glm::radians(45.f), aspect, 0.1, 100.f);
 
+      if (spawnVase)
+      {
+        addVase(glm::vec3{clear_color.x, clear_color.y, clear_color.z},
+                position,
+                rotation,
+                scale);
+        spawnVase = false;
+      }
       if (auto commandBuffer = lveRenderer.beginFrame())
       {
 
         lveRenderer.beginSwapChainRenderPass(commandBuffer);
         myimgui.NewFrame();
         {
-          static float f = 0.0f;
-          static int counter = 0;
 
-          ImGui::Begin("Hello, world!"); // Create a window called "Hello, world!" and append into it.
+          ImGui::Begin("VASE"); // Create a window called "Hello, world!" and append into it.
 
-          ImGui::Text("This is some useful text.");          // Display some text (you can use a format strings too)
-          ImGui::Checkbox("Demo Window", &show_demo_window); // Edit bools storing our window open/close state
-          ImGui::Checkbox("Another Window", &show_another_window);
+          ImGui::ColorEdit3("COLOR", (float *)&clear_color); // Edit 3 floats representing a color
+          ImGui::DragFloat3("POSITION", &position.x, 0.001f, -5.f, 5.f);
+          ImGui::DragFloat3("SCALE", &scale.x, 0.001f, -5.f, 5.f);
+          ImGui::DragFloat3("ROTATION (in rad)", &rotation.x, 0.001f, -5.f, 5.f);
+          spawnVase = ImGui::Button("VASE"); // Edit bools storing our window open/close state
 
-          ImGui::SliderFloat("float", &f, 0.0f, 1.0f);             // Edit 1 float using a slider from 0.0f to 1.0f
-          ImGui::ColorEdit3("clear color", (float *)&clear_color); // Edit 3 floats representing a color
-
-          if (ImGui::Button("Button")) // Buttons return true when clicked (most widgets return true when edited/activated)
-            counter++;
-          ImGui::SameLine();
-          ImGui::Text("counter = %d", counter);
-
-          ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
           ImGui::End();
         }
         myimgui.Update();
@@ -186,8 +190,6 @@ namespace lve
     arrowY.model = lveModelArrowY;
     arrowZ.model = lveModelArrowZ;
 
-    // arrowZ.transform.rotation = {glm::pi<float>(), 0.f, 0.f};
-
     arrowX.transform.translation = {0.75f, 0.f, 0.f};
     arrowY.transform.translation = {0.f, 0.75f, 0.f};
     arrowZ.transform.translation = {0.f, 0.f, 0.75f};
@@ -210,6 +212,19 @@ namespace lve
 
     // gameObjects.push_back(std::move(cube1));
     gameObjects.push_back(std::move(cube2));
+  }
+
+  void FirstApp::addVase(glm::vec3 color, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)
+  {
+    std::shared_ptr<LveModel> lveModel = LveModel::createModelFromFile(lveDevice, "models/smooth_vase.obj", color);
+    auto vase = LveGameObject::createGameObject();
+
+    vase.model = lveModel;
+    vase.transform.translation = position;
+    vase.transform.rotation = rotation;
+    vase.transform.scale = scale;
+
+    gameObjects.push_back(std::move(vase));
   }
 
 }
