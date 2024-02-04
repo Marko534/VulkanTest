@@ -53,13 +53,19 @@ namespace lve
 
     auto currentTime = std::chrono::high_resolution_clock::now();
 
-    bool show_demo_window = {true};
-    bool show_another_window{false};
-    ImVec4 clear_color{ImVec4(0.45f, 0.55f, 0.60f, 1.00f)};
+    // VASE
     static bool spawnVase = false;
-    glm::vec3 position{0.f};
-    glm::vec3 scale{0.f};
-    glm::vec3 rotation{0.f};
+    glm::vec3 positionVase{0.f};
+    glm::vec3 scaleVase{1.f};
+    glm::vec3 rotationVase{0.f};
+    glm::vec4 colorVase(1.f);
+
+    // CUBE
+    static bool spawnCube = false;
+    glm::vec3 positionCube{0.f};
+    glm::vec3 scaleCube{1.f};
+    glm::vec3 rotationCube{0.f};
+    glm::vec4 colorCube(1.f);
 
     while (!lveWindow.shouldClose())
     {
@@ -87,11 +93,19 @@ namespace lve
 
       if (spawnVase)
       {
-        addVase(glm::vec3{clear_color.x, clear_color.y, clear_color.z},
-                position,
-                rotation,
-                scale);
+        addVase(glm::vec3{colorVase.x, colorVase.y, colorVase.z},
+                positionVase,
+                rotationVase,
+                scaleVase);
         spawnVase = false;
+      }
+      if (spawnCube)
+      {
+        addCube(glm::vec3{colorCube.x, colorCube.y, colorCube.z},
+                positionCube,
+                rotationCube,
+                scaleCube);
+        spawnCube = false;
       }
       if (auto commandBuffer = lveRenderer.beginFrame())
       {
@@ -99,15 +113,22 @@ namespace lve
         lveRenderer.beginSwapChainRenderPass(commandBuffer);
         myimgui.NewFrame();
         {
-
-          ImGui::Begin("VASE"); // Create a window called "Hello, world!" and append into it.
-
-          ImGui::ColorEdit3("COLOR", (float *)&clear_color); // Edit 3 floats representing a color
-          ImGui::DragFloat3("POSITION", &position.x, 0.001f, -5.f, 5.f);
-          ImGui::DragFloat3("SCALE", &scale.x, 0.001f, -5.f, 5.f);
-          ImGui::DragFloat3("ROTATION (in rad)", &rotation.x, 0.001f, -5.f, 5.f);
+          // VASE
+          ImGui::Begin("VASE");                            // Create a window called "Hello, world!" and append into it.
+          ImGui::ColorEdit3("COLOR", (float *)&colorVase); // Edit 3 floats representing a color
+          ImGui::DragFloat3("POSITION", &positionVase.x, 0.001f, -5.f, 5.f);
+          ImGui::DragFloat3("SCALE", &scaleVase.x, 0.001f, -5.f, 5.f);
+          ImGui::DragFloat3("ROTATION (in rad)", &rotationVase.x, 0.001f, -5.f, 5.f);
           spawnVase = ImGui::Button("VASE"); // Edit bools storing our window open/close state
+          ImGui::End();
 
+          // CUBE
+          ImGui::Begin("CUBE");                            // Create a window called "Hello, world!" and append into it.
+          ImGui::ColorEdit3("COLOR", (float *)&colorCube); // Edit 3 floats representing a color
+          ImGui::DragFloat3("POSITION", &positionCube.x, 0.001f, -5.f, 5.f);
+          ImGui::DragFloat3("SCALE", &scaleCube.x, 0.001f, -5.f, 5.f);
+          ImGui::DragFloat3("ROTATION (in rad)", &rotationCube.x, 0.001f, -5.f, 5.f);
+          spawnCube = ImGui::Button("CUBE"); // Edit bools storing our window open/close state
           ImGui::End();
         }
         myimgui.Update();
@@ -121,62 +142,9 @@ namespace lve
     vkDeviceWaitIdle(lveDevice.device());
   }
 
-  // temporary helper function, creates a 1x1x1 cube centered at offset with a index budder.
-  std::unique_ptr<LveModel> createCubeModel(LveDevice &device, glm::vec3 offset)
-  {
-    LveModel::Builder modelBuilder{};
-    modelBuilder.vertices = {
-        // left face (red) 1.f, 0.f, 0.f
-        {{-.5f, -.5f, -.5f}, {1.f, 0.f, 0.f}},
-        {{-.5f, .5f, .5f}, {1.f, 0.f, 0.f}},
-        {{-.5f, -.5f, .5f}, {1.f, 0.f, 0.f}},
-        {{-.5f, .5f, -.5f}, {1.f, 0.f, 0.f}},
-
-        // right face (orange) 0.8f, 0.31f, 0.f
-        {{.5f, -.5f, -.5f}, {0.8f, 0.31f, 0.f}},
-        {{.5f, .5f, .5f}, {0.8f, 0.31f, 0.f}},
-        {{.5f, -.5f, .5f}, {0.8f, 0.31f, 0.f}},
-        {{.5f, .5f, -.5f}, {0.8f, 0.31f, 0.f}},
-
-        // top face (yellow, remember y axis points down) 1.f, 1.f, 0.f
-        {{-.5f, -.5f, -.5f}, {1.f, 1.f, 0.f}},
-        {{.5f, -.5f, .5f}, {1.f, 1.f, 0.f}},
-        {{-.5f, -.5f, .5f}, {1.f, 1.f, 0.f}},
-        {{.5f, -.5f, -.5f}, {1.f, 1.f, 0.f}},
-
-        // bottom face (white) 1.f, 1.f, 1.f
-        {{-.5f, .5f, -.5f}, {1.f, 1.f, 1.f}},
-        {{.5f, .5f, .5f}, {1.f, 1.f, 1.f}},
-        {{-.5f, .5f, .5f}, {1.f, 1.f, 1.f}},
-        {{.5f, .5f, -.5f}, {1.f, 1.f, 1.f}},
-
-        // nose face (blue) 0.f, 0.f, 1.f
-        {{-.5f, -.5f, 0.5f}, {0.f, 0.f, 1.f}},
-        {{.5f, .5f, 0.5f}, {0.f, 0.f, 1.f}},
-        {{-.5f, .5f, 0.5f}, {0.f, 0.f, 1.f}},
-        {{.5f, -.5f, 0.5f}, {0.f, 0.f, 1.f}},
-
-        // tail face (green) 0.f, 0.5f, 0.f
-        {{-.5f, -.5f, -0.5f}, {0.f, 0.5f, 0.f}},
-        {{.5f, .5f, -0.5f}, {0.f, 0.5f, 0.f}},
-        {{-.5f, .5f, -0.5f}, {0.f, 0.5f, 0.f}},
-        {{.5f, -.5f, -0.5f}, {0.f, 0.5f, 0.f}},
-
-    };
-    for (auto &v : modelBuilder.vertices)
-    {
-      v.position += offset;
-    }
-    modelBuilder.indices = {0, 1, 2, 0, 3, 1, 4, 5, 6, 4, 7, 5, 8, 9, 10, 8, 11, 9,
-                            12, 13, 14, 12, 15, 13, 16, 17, 18, 16, 19, 17, 20, 21, 22, 20, 23, 21};
-
-    return std::make_unique<LveModel>(device, modelBuilder);
-  }
-
   // YOU MAKE THE MODELS HERE
   void FirstApp::loadGameObjects()
   {
-    std::shared_ptr<LveModel> lveModel1 = createCubeModel(lveDevice, glm::vec3{0.f});
     std::shared_ptr<LveModel> lveModel2 = LveModel::createModelFromFile(lveDevice, "models/smooth_vase.obj", {1.f, 0.f, 0.69f});
     std::shared_ptr<LveModel> lveModelArrowX = LveModel::createModelFromFile(lveDevice, "models/arrow.obj", {1.f, 0.f, 0.f});
     std::shared_ptr<LveModel> lveModelArrowY = LveModel::createModelFromFile(lveDevice, "models/arrow.obj", {0.f, 1.f, 0.f});
@@ -205,7 +173,6 @@ namespace lve
     auto cube1 = LveGameObject::createGameObject();
     auto cube2 = LveGameObject::createGameObject();
 
-    cube1.model = lveModel1;
     cube2.model = lveModel2;
 
     cube2.transform.translation = {0.f, 0.f, 2.5f};
@@ -217,6 +184,19 @@ namespace lve
   void FirstApp::addVase(glm::vec3 color, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)
   {
     std::shared_ptr<LveModel> lveModel = LveModel::createModelFromFile(lveDevice, "models/smooth_vase.obj", color);
+    auto vase = LveGameObject::createGameObject();
+
+    vase.model = lveModel;
+    vase.transform.translation = position;
+    vase.transform.rotation = rotation;
+    vase.transform.scale = scale;
+
+    gameObjects.push_back(std::move(vase));
+  }
+
+  void FirstApp::addCube(glm::vec3 color, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)
+  {
+    std::shared_ptr<LveModel> lveModel = LveModel::createModelFromFile(lveDevice, "models/cube.obj", color);
     auto vase = LveGameObject::createGameObject();
 
     vase.model = lveModel;
