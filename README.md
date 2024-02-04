@@ -79,3 +79,4 @@ chmod +x unixBuild.sh
 ./unixBuild.sh
 ``` 
 
+If you are having problems try to delete the build folder.
