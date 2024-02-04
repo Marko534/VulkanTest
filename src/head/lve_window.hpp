@@ -37,9 +37,6 @@ namespace lve
 
     std::string windowName;
     GLFWwindow *window;
-
-    void initImGui();
-    void cleanupImGui();
   };
 
 }
