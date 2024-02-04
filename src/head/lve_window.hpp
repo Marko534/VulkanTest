@@ -1,15 +1,5 @@
 #pragma once
 
-#include "../external/imgui/imgui.h"
-#include "../external/imgui/backends/imgui_impl_glfw.h"
-#include "../external/imgui/backends/imgui_impl_vulkan.h"
-
-// #include "../external/imgui/imgui_tables.cpp"
-// #include "../external/imgui/imgui_internal.h"
-// #include "../external/imgui/imgui_draw.cpp"
-// #include "../external/imgui/imgui_widgets.cpp"
-// #include "../external/imgui/imgui_demo.cpp"
-
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
