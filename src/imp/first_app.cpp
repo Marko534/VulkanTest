@@ -79,8 +79,8 @@ namespace lve
         lveRenderer.beginSwapChainRenderPass(commandBuffer);
         myimgui.NewFrame();
         myimgui.Update();
-        myimgui.Render();
         simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, camera);
+        myimgui.Render(commandBuffer);
         lveRenderer.endSwapChainRenderPass(commandBuffer);
         lveRenderer.endFrame();
       }

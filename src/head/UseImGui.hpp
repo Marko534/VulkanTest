@@ -28,7 +28,7 @@ namespace lve
     void Init(GLFWwindow *window, LveDevice &device, LveRenderer &renderer);
     void NewFrame();
     virtual void Update();
-    void Render();
+    void Render(VkCommandBuffer commandBuffer);
     void Shutdown(LveDevice &device);
   };
 }

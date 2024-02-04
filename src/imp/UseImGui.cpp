@@ -106,11 +106,13 @@ namespace lve
     }
   }
 
-  void UseImGui::Render()
+  void UseImGui::Render(VkCommandBuffer commandBuffer)
   {
     // Render dear imgui into screen
     ImGui::Render();
     ImDrawData *draw_data = ImGui::GetDrawData();
+    ImGui_ImplVulkan_RenderDrawData(draw_data, commandBuffer);
+
     // const bool is_minimized = (draw_data->DisplaySize.x <= 0.0f || draw_data->DisplaySize.y <= 0.0f);
     // if (!is_minimized)
     // {
